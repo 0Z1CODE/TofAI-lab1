@@ -1,13 +1,13 @@
 export const welcomMessage = (user) => {
-  return `<b>Привіт ${user} </b>, вітаємо в нашому чат боті.`; // The welcome message
+  return `<b>Привіт ${user} </b>, вітаємо в нашому чат-боті.`; 
 };
 
 export const categoryMessage = (category) => {
-  return `Оберіть необхідну категорію: ${category} ↘`; // The welcome message
+  return `Оберіть необхідну категорію: ${category} ↘`;
 };
 
 export const selectPoint = () => {
-  return `Оберіть розділ! ↘`; // The welcome message
+  return `Оберіть розділ! ↘`; 
 };
 
 export const infoBtns = {
@@ -22,13 +22,13 @@ export const menuBtns = {
   reply_markup: {
     keyboard: [
       [{ text: "Готові пк" }, { text: "Комплектуючі" }],
-      [{ text: "Девайси" }], // Send a photo
+      [{ text: "Девайси" }], 
     ],
     resize_keyboard: true,
   },
 };
 
-export const plugAndPlayMemu = {
+export const plugAndPlayMenu = {
   reply_markup: {
     inline_keyboard: [
       [
@@ -90,5 +90,11 @@ export const itemMenu = {
   ],
 };
 
+export const getContactBtn = {
+    inline_keyboard: [
+      [{ text: "Надіслати номер телефону", request_contact: true , callback_data: "send_contact"}],
+    ],
+    resize_keyboard: true
+};
 export const cartBtn = (sp)=> `Запит на придбання товару: <b>${sp}</b> успішно сформовано.🤩\nНаш менеджер зв'яжеться з вами за декілька хвилин.\nДякуємо, що обрали нас.\n<b>Все буде Україна! 🇺🇦 </b>`;
 export const roductCaption = (item) => `<b>${item.title}</b>\n<b>Короткі технічні характеристики:</b>\n${item.docket}\n<b>Ціна: ${item.price} грн</b>`;

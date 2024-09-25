@@ -3,14 +3,15 @@ import {
   welcomMessage,
   menuBtns,
   infoBtns,
-  plugAndPlayMemu,
+  plugAndPlayMenu,
   itemMenu,
   categoryMessage,
   accessoriesMenu,
   selectPoint,
   devicesMenu,
   cartBtn,
-  roductCaption
+  roductCaption, 
+  getContactBtn
 
 } from "./components/const.js";
 import fData from "./api/f_api.json" with { type: "json" }; // Import the data from the JSON file
@@ -22,9 +23,7 @@ const bot = new TelegramBot(token, { polling: true }); // Create a new bot insta
 const start = () => {
   bot.setMyCommands([
     { command: "/start", description: "Старт" },
-    { command: "/help", description: "Допомога" },
     { command: "/info", description: "Інформація" },
-    // { command: "/clear", description: "Очистит чат" },
   ]); // Set the bot commands
 
   const commandsAnswer = async (command, params) => {
@@ -38,18 +37,18 @@ const start = () => {
         await bot.sendMessage(id, welcomMessage(username), {
           parse_mode: "HTML",
         }); // Send a message
-        await bot.sendMessage(id, selectPoint(), menuBtns); // Send a message
+        await bot.sendMessage(id, selectPoint(), menuBtns); 
         break;
 
       case "/info":
-        await bot.sendMessage(id, "Тут якась інформація про бота", infoBtns); // Send a message
+        await bot.sendMessage(id, "Тут якась інформація про бота", infoBtns);
         break;
 
       case "Готові пк":
         await bot.sendMessage(
           id,
           categoryMessage("Готові пк"),
-          plugAndPlayMemu
+          plugAndPlayMenu
         );
         break;
       case "Комплектуючі":
@@ -68,7 +67,7 @@ const start = () => {
         break;
 
       default:
-        bot.sendMessage(id, "Команду не знайдено("); // Send a message
+        bot.sendMessage(id, "Команду не знайдено("); 
     }
   };
 
@@ -90,19 +89,16 @@ const start = () => {
 
       case "for_study_cat":
         fData?.study?.map(async (item, id) => {
-          console.log(data);
+          console.log(data);// Log the data
           setTimeout(() => {
             bot.sendPhoto(chatId, item.images[0], {
               caption: roductCaption(item),
               parse_mode: "HTML",
               reply_markup: itemMenu,
             });
-          }, 100 * id);
+          }, 1000 * id);
         });
-
         break;
-
- 
 
       case "to_cart":
         {
@@ -111,14 +107,17 @@ const start = () => {
           bot.sendMessage(
             chatId,
            cartBtn(sp),
-            { parse_mode: "HTML" }
+            { parse_mode: "HTML", reply_markup: getContactBtn }
+  
           );
         }
-
+        break;
+        case "send_contact": 
+        bot.sendMessage(chatId, "Дякуємо за контакт");
         break;
 
       default:
-        bot.sendMessage(chatId, "Команду не знайдено("); // Send a message
+        bot.sendMessage(chatId, "Команду не знайдено(");
     }
   });
 };
