@@ -1,0 +1,29 @@
+{
+  "name": "marokhonko-tg-bot",
+  "version": "0.0.1",
+  "description": "Practice task 1 ",
+  "main": "main.js",
+  "type": "module",
+  "scripts": {
+    "test": "test",
+    "dev": "nodemon main.js",
+    "start": "node main.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/0Z1CODE/TofAI-lab1.git"
+  },
+  "author": "marokhonkoM",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/0Z1CODE/TofAI-lab1/issues"
+  },
+  "homepage": "https://github.com/0Z1CODE/TofAI-lab1#readme",
+  "devDependencies": {
+    "nodemon": "^3.1.7"
+  },
+  "dependencies": {
+    "axios": "^1.7.7",
+    "node-telegram-bot-api": "^0.66.0"
+    }
+}
