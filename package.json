@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "test": "test",
-    "dev": "nodemon main.js",
-    "start": "node main.js"
+    "dev": "nodemon bot/main.js",
+    "start": "node bot/main.js"
   },
   "repository": {
     "type": "git",
@@ -24,6 +24,8 @@
   },
   "dependencies": {
     "axios": "^1.7.7",
+    "dotenv": "^16.4.5",
+    "mongoose": "^8.7.0",
     "node-telegram-bot-api": "^0.66.0"
-    }
+  }
 }
