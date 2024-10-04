@@ -39,6 +39,14 @@ export const sendPhoneBtn = {
   one_time_keyboard: true,
 };
 
+export const sendLocation = {
+  keyboard: [
+    [{ text: "Відправити локацію", request_location: true }]
+  ],
+
+  one_time_keyboard: true,
+};
+
 export const plugAndPlayMenu = {
   reply_markup: {
     inline_keyboard: [
@@ -101,6 +109,13 @@ export const itemMenu = {
   ],
 };
 
+export const set_order = {
+  inline_keyboard: [
+    [{ text: "Підтвердити замовлення  💰", callback_data: "set_order" }],
+  ],
+};
+
+
 export const getContactBtn = {
   inline_keyboard: [
     [
@@ -112,6 +127,10 @@ export const getContactBtn = {
     ],
   ],
   one_time_keyboard: true,
+
+
+
+  
 };
 export const cartBtn = (sp) =>
   `Запит на придбання товару: <b>${sp}</b> успішно сформовано.🤩\nНаш менеджер зв'яжеться з вами за декілька хвилин.\nДякуємо, що обрали нас.\n<b>Все буде Україна! 🇺🇦 </b>`;

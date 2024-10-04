@@ -7,28 +7,28 @@ const orderSchema = new mongoose.Schema(
       ref: "User",
     },
     product_id: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Product",
+      type: "String",
       required: true,
-      default: "asfsdfdsfdsf"
     },
     user_info: {
-      first_name: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-      last_name: {
-       type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
-        required: true,
-      },
-      phone: {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "Contacts",
-        required: true,
-      },
-      },
+      type: {
+        first_name: {
+          type: String,
+          required: true,
+        },
+        last_name: {
+         type: String,
+          required: true,
+        },
+        phone: {
+          type: String,
+          required: true,
+        },
+        address: {
+          type: String,
+          required: true,
+        },
+    },
    
     status: {
       type: String,
@@ -41,11 +41,9 @@ const orderSchema = new mongoose.Schema(
       default: 1,
     },
   },
-
-
-
-
-  { timestamps: true }
+},
+{ timestamps: true }
+ 
 );
 
 const Order = mongoose.model("Order", orderSchema);

@@ -1,5 +1,4 @@
 import mongoose from "mongoose";
-import User from "./user.model.js"; // Ensure you have the correct path to the User model
 
 const contactsSchema = new mongoose.Schema(
   {
@@ -25,10 +24,42 @@ const contactsSchema = new mongoose.Schema(
       type: String,
     },
     location: {
-      type: Array,
+      type: Object,
     },
-    deliveryInfo: {
-      type: Array,
+    address: {
+      type: String,
+    },
+
+    addressInfo: {
+      type: {
+        house_number: {
+          type: String,
+        },
+        road: {
+          type: String,
+        },
+        allotments: {
+          type: String,
+        },
+        village: {
+          type: String,
+        },
+        municipality: {
+          type: String,
+        },
+        district: {
+          type: String,
+        },
+        state: {
+          type: String,
+        },
+        postcode: {
+          type: String,
+        },
+        country: {
+          type: String,
+        },
+      },
     },
   },
 
