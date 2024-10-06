@@ -15,6 +15,7 @@ import {
   sendPhoneBtn,
   set_order,
   sendLocation,
+  checkAndResumeMenu
 } from "./components/const.js";
 import User from "../db/models/user.model.js";
 import dotenv from "dotenv";
@@ -28,7 +29,9 @@ import {
   setPhone,
   setNames,
   setAddress,
+  getUserContacts,
 } from "../db/controllers/conacts.controller.js";
+import { set } from "mongoose";
 dotenv.config();
 
 const token = process.env.BOT_TOKEN; // Your bot token from environment variables
@@ -94,11 +97,13 @@ const start = async () => {
     const text = msg.text; // Get the message from the chat
     const { id, first_name } = msg.chat; // Get the chat id
     commandsAnswer(text, { id, first_name }); // Get the answer for the command
-
+    const userContact = await getUserContacts({ id: user._id })
+    ;
+    if(!userContact){
     if (contact) {
       const { phone_number } = contact;
       await setPhone({ id: user._id, phone: phone_number });
-      await bot.sendMessage(id, `Дякуємо, тепер введіть ваші ім'я та прізвище`);
+      await bot.sendMessage(id, `Введіть ваше ім'я та прізвище через пробіл`);
     }
 
     if (text && /^([A-Za-zА-Яа-я]+)\s([A-Za-zА-Яа-я]+)$/.test(text)) {
@@ -136,6 +141,11 @@ const start = async () => {
         { reply_markup: set_order }
       );
     }
+
+
+  } 
+
+    
   }); // Listen for messages
 
   // Callback query handler
@@ -145,6 +155,7 @@ const start = async () => {
     const { id } = query.from;
     const data = query.data;
     const user = await User.findOne({ telegram_id: id });
+    const userContacts = await getUserContacts({ id: user._id });
 
     switch (data) {
       case "send_photo":
@@ -174,17 +185,25 @@ const start = async () => {
 
           tmp_orderId = sp;
           set_contacts = true;
-          initUserContacts({ id: user._id });
-         await bot.sendMessage(chatId, cartWithoutContanct(sp), {
-            parse_mode: "HTML",
-            reply_markup: sendPhoneBtn,
-          });
-        }
+          if ( !userContacts) {
+            await initUserContacts({ id: user._id });
+            await bot.sendMessage(chatId, cartWithoutContanct(sp), {
+                parse_mode: "HTML",
+                reply_markup: sendPhoneBtn,
+              });
+            } else {
+              await bot.sendMessage(chatId, `Ваше замовлення на товар <b>${tmp_orderId}</b> успішно оформлено\nПеревірте ваші дані і підтвердіть замовлення.\nОтрмувач - ${userContacts.first_name + " " + userContacts.last_name}`, {
+                parse_mode: "HTML",
+                reply_markup: set_order,
+              });
+             
+            }
+          }
         break;
 
       case "set_order": {
-        const userContacts = await initUserContacts({ id: user._id });
-        await initNewOrder({
+        const userContacts = await getUserContacts({ id: user._id });
+        const order = await initNewOrder({
           user_id: user._id,
           product_id: tmp_orderId,
           contacts: userContacts,
@@ -192,8 +211,9 @@ const start = async () => {
           quantity: 1,
         });
         
-        await bot.sendMessage(chatId, `Шановний ${userContacts.first_name}, ваше замовлення на товар ${tmp_orderId} успішно оформлено.\n `, {
+        await bot.sendMessage(chatId, `Шановний ${userContacts.first_name}, ваше замовлення на товар ${order.product_id} успішно оформлено.\n `, {
           parse_mode: "HTML",
+          reply_markup:  menuBtns,
           });
         break
       }

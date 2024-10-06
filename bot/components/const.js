@@ -1,3 +1,4 @@
+
 export const welcomMessage = (user) => {
   return `<b>Привіт ${user} </b>, вітаємо в нашому чат-боті.`;
 };
@@ -35,16 +36,12 @@ export const sendPhoneBtn = {
   keyboard: [
     [{ text: "Відправити контакт", request_contact: true }]
   ],
-
-  one_time_keyboard: true,
 };
 
 export const sendLocation = {
   keyboard: [
-    [{ text: "Відправити локацію", request_location: true }]
+    [{ text: "Відправити локацію", request_location: true }],
   ],
-
-  one_time_keyboard: true,
 };
 
 export const plugAndPlayMenu = {
@@ -115,6 +112,15 @@ export const set_order = {
   ],
 };
 
+
+export const checkAndResumeMenu = {
+  
+  keyboard: [
+    [{ text: "Змінити номер телефону", callback_data: "change_phone" }],
+    [{ text: "Змінити адресу", callback_data: "change_location" }],
+    [{ text: "Змінити Імя та Прізвище", callback_data: "change_name" }],
+  ],
+};
 
 export const getContactBtn = {
   inline_keyboard: [
