@@ -9,7 +9,7 @@
 
 see package.json for more
 
-## General Portal / Fragment dev loop
+## General dev loop
 
 1. restore dependencies
 
