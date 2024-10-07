@@ -13,9 +13,11 @@ import {
   roductCaption,
   cartWithoutContanct,
   sendPhoneBtn,
-  set_order,
+  orderMenu,
+  checkAndResumeMenu,
   sendLocation,
-  checkAndResumeMenu
+  greetingAceptOrderMessage,
+  thxForOrderMessage,
 } from "./components/const.js";
 import User from "../db/models/user.model.js";
 import dotenv from "dotenv";
@@ -31,19 +33,23 @@ import {
   setAddress,
   getUserContacts,
 } from "../db/controllers/conacts.controller.js";
-import { set } from "mongoose";
+
 dotenv.config();
 
 const token = process.env.BOT_TOKEN; // Your bot token from environment variables
 const bot = new TelegramBot(token, { polling: true }); // Create a new bot instance
 let set_contacts = false;
-let tmp_orderId = null;
+let tmp_orderInfo = {
+  product: null,
+  coast: null,
+};
 
 const start = async () => {
   await connectToMongoDb(); // Connect to the MongoDB database
   bot.setMyCommands([
     { command: "/start", description: "Старт" },
     { command: "/info", description: "Інформація" },
+    { command: "/show_menu", description: "Показати меню" },
   ]); // Set the bot commands
 
   const commandsAnswer = async (command, params) => {
@@ -59,6 +65,10 @@ const start = async () => {
           parse_mode: "HTML",
         }); // Send a message
         await bot.sendMessage(id, selectPoint(), menuBtns); // Send a message with the menu
+        break;
+
+      case "/show_menu":
+        await bot.sendMessage(id, selectPoint(), menuBtns);
         break;
 
       case "/info":
@@ -88,6 +98,10 @@ const start = async () => {
       case "Девайси":
         await bot.sendMessage(id, categoryMessage("Девайси"), devicesMenu);
         break;
+
+      // default: {
+      //   await bot.sendMessage(id, "Команду не знайдено(");
+      // }
     }
   };
 
@@ -97,55 +111,72 @@ const start = async () => {
     const text = msg.text; // Get the message from the chat
     const { id, first_name } = msg.chat; // Get the chat id
     commandsAnswer(text, { id, first_name }); // Get the answer for the command
-    const userContact = await getUserContacts({ id: user._id })
-    ;
-    if(!userContact){
-    if (contact) {
-      const { phone_number } = contact;
-      await setPhone({ id: user._id, phone: phone_number });
-      await bot.sendMessage(id, `Введіть ваше ім'я та прізвище через пробіл`);
-    }
 
-    if (text && /^([A-Za-zА-Яа-я]+)\s([A-Za-zА-Яа-я]+)$/.test(text)) {
-      const [_, firstName, lastName] = text.match(
-        /^([A-Za-zА-Яа-я]+)\s([A-Za-zА-Яа-я]+)$/
-      );
-      await setNames({
-        id: user._id,
-        first_name: firstName,
-        last_name: lastName,
-      });
-      await bot.sendMessage(
-        id,
-        `Дякуємо, ${firstName} ${lastName}, ваші дані збережено.`
-      );
-      await bot.sendMessage(id, `Поділіться своєю адресою`, {
-        reply_markup: sendLocation,
-      });
-    }
+    const userContact = (await getUserContacts({ id: user?._id })) || null;
+    if (
+      !userContact?.phone ||
+      !userContact?.first_name ||
+      !userContact?.last_name ||
+      !userContact?.address
+    ) {
+      set_contacts = true;
+      if (contact) {
+        const { phone_number } = contact;
+        await setPhone({ id: user._id, phone: phone_number });
+        await bot.sendMessage(id, `Введіть ваше ім'я та прізвище через пробіл`);
+      }
 
-    if (location) {
-      const { latitude, longitude } = location;
-      const geocoder = await axios.get(
-        `${process.env.Geocoder}lat=${latitude}&lon=${longitude}&format=json`
-      );
-      await setAddress({
-        id: user._id,
-        addressInfo: geocoder.data.address,
-        location: location,
-        address: geocoder.data.display_name,
-      });
-      await bot.sendMessage(
-        id,
-        `Дякуємо, ваша адреса збережена: ${geocoder.data.display_name}`,
-        { reply_markup: set_order }
-      );
-    }
+      if (text && /^([A-Za-zА-Яа-я]+)\s([A-Za-zА-Яа-я]+)$/.test(text)) {
+        const [_, firstName, lastName] = text.match(
+          /^([A-Za-zА-Яа-я]+)\s([A-Za-zА-Яа-я]+)$/
+        );
+        await setNames({
+          id: user._id,
+          first_name: firstName,
+          last_name: lastName,
+        });
+        await bot.sendMessage(
+          id,
+          `Дякуємо, ${firstName} ${lastName}, ваші дані збережено.`
+        );
+        await bot.sendMessage(id, `Поділіться своєю адресою`, {
+          reply_markup: sendLocation,
+        });
+      }
 
-
-  } 
-
-    
+      if (location) {
+        const { latitude, longitude } = location;
+        const geocoder = await axios.get(
+          `${process.env.Geocoder}lat=${latitude}&lon=${longitude}&format=json`
+        );
+        await setAddress({
+          id: user._id,
+          addressInfo: geocoder.data.address,
+          location: location,
+          address: geocoder.data.display_name,
+        });
+        await bot.sendMessage(
+          id,
+          `Дякуємо, ваша адреса збережена: ${geocoder.data.display_name}`, {remove_keyboard: true}
+        );
+        const userContact = await getUserContacts({ id: user._id });
+        await bot.sendMessage(
+          id,
+          greetingAceptOrderMessage(
+            tmp_orderInfo.product,
+            userContact.first_name,
+            userContact.last_name,
+            userContact.phone,
+            userContact.address,
+            tmp_orderInfo.coast
+          ),
+          {
+            parse_mode: "HTML",
+            reply_markup: orderMenu,
+          }
+        );
+      }
+    } else set_contacts = false;
   }); // Listen for messages
 
   // Callback query handler
@@ -165,6 +196,13 @@ const start = async () => {
         );
         break;
 
+      case "edit_contacts": {
+        await bot.sendMessage(chatId, `Оберіть, що ви хочете змінити`, {
+          reply_markup: checkAndResumeMenu,
+        });
+        break;
+      }
+
       case "for_study_cat":
         fData?.study?.map(async (item, id) => {
           setTimeout(() => {
@@ -181,41 +219,68 @@ const start = async () => {
         {
           const caption = query.message.caption;
           const sp = caption?.split("\n")[0];
-          // console.log(query);
-
-          tmp_orderId = sp;
+          const priceLine = caption
+            ?.split("\n")
+            .find((line) => line.startsWith("Ціна:"));
+          const coast = priceLine
+            ? priceLine.split(":")[1].trim().replace(/\D/g, "")
+            : "0";
+          tmp_orderInfo.product = sp;
+          tmp_orderInfo.coast = coast;
           set_contacts = true;
-          if ( !userContacts) {
+          if (!userContacts) {
             await initUserContacts({ id: user._id });
             await bot.sendMessage(chatId, cartWithoutContanct(sp), {
+              parse_mode: "HTML",
+              reply_markup: sendPhoneBtn,
+            });
+          } else {
+            const userContacts = await getUserContacts({ id: user._id });
+            const { phone, first_name, last_name, address } = userContacts;
+            await bot.sendMessage(
+              chatId,
+              greetingAceptOrderMessage(
+                sp,
+                first_name,
+                last_name,
+                phone,
+                address,
+                coast
+              ),
+              {
                 parse_mode: "HTML",
-                reply_markup: sendPhoneBtn,
-              });
-            } else {
-              await bot.sendMessage(chatId, `Ваше замовлення на товар <b>${tmp_orderId}</b> успішно оформлено\nПеревірте ваші дані і підтвердіть замовлення.\nОтрмувач - ${userContacts.first_name + " " + userContacts.last_name}`, {
-                parse_mode: "HTML",
-                reply_markup: set_order,
-              });
-             
-            }
+                reply_markup: orderMenu,
+              }
+            );
           }
+        }
         break;
 
-      case "set_order": {
+      case "accept_order": {
+        const { product, coast } = tmp_orderInfo;
         const userContacts = await getUserContacts({ id: user._id });
-        const order = await initNewOrder({
+        await initNewOrder({
           user_id: user._id,
-          product_id: tmp_orderId,
+          product_id: product,
           contacts: userContacts,
           status: "pending",
           quantity: 1,
+          coast: coast,
         });
-        
-        await bot.sendMessage(chatId, `Шановний ${userContacts.first_name}, ваше замовлення на товар ${order.product_id} успішно оформлено.\n `, {
+
+        await bot.sendMessage(chatId, thxForOrderMessage, {
           parse_mode: "HTML",
-          reply_markup:  menuBtns,
-          });
-        break
+          reply_markup: menuBtns,
+        });
+        break;
+      }
+
+      case "cancel_order": {
+        await bot.sendMessage(chatId, "Замовлення відхилено");
+        await bot.sendMessage(chatId, "Оберіть пункт меню", {
+          reply_markup: menuBtns,
+        });
+        break;
       }
 
       default:

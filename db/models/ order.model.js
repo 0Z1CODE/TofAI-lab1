@@ -10,8 +10,12 @@ const orderSchema = new mongoose.Schema(
       type: "String",
       required: true,
     },
+    coast: {
+      type: Number,
+      required: true,
+    },
     user_info: {
-      type: {
+    
         first_name: {
           type: String,
           required: true,
@@ -28,8 +32,8 @@ const orderSchema = new mongoose.Schema(
           type: String,
           required: true,
         },
+    
     },
-   
     status: {
       type: String,
       enum: ["pending", "completed", "cancelled"],
@@ -41,7 +45,6 @@ const orderSchema = new mongoose.Schema(
       default: 1,
     },
   },
-},
 { timestamps: true }
  
 );

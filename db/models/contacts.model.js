@@ -20,9 +20,7 @@ const contactsSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    email: {
-      type: String,
-    },
+  
     location: {
       type: Object,
     },
@@ -31,7 +29,6 @@ const contactsSchema = new mongoose.Schema(
     },
 
     addressInfo: {
-      type: {
         house_number: {
           type: String,
         },
@@ -58,7 +55,6 @@ const contactsSchema = new mongoose.Schema(
         },
         country: {
           type: String,
-        },
       },
     },
   },

@@ -2,9 +2,8 @@ import Order from "../models/ order.model.js";
 
 export const initNewOrder = async (req, res) => {
   try {
-    const { user_id, product_id, contacts, status, quantity } = req;
+    const { user_id, product_id, contacts, status, quantity, coast} = req;
     console.log({contacts});
-    
     const newOrder = new Order({
       user_id,
       product_id,
@@ -16,10 +15,22 @@ export const initNewOrder = async (req, res) => {
       },
       status,
       quantity,
+      coast,
     });
     await newOrder.save();
     return newOrder;
   } catch (error) {
     console.log("Error setting order", error.message);
+  }
+};
+
+
+export const getUserOrders = async (req, res) => {
+  try {
+    const { id } = req;
+    const orders = await Order.find({ user_id: id });
+    return orders;
+  } catch (error) {
+    console.log("Error getting orders", error.message);
   }
 };
