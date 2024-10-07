@@ -20,7 +20,6 @@ npm install
 2. Start dev env
 
 ```shell
-# start dev server
 npm run dev 
 ```
 
@@ -31,5 +30,5 @@ npm run dev
 ENV | Required? | Notes
 ----|-----------|------
 BOT_TOKEN | Yes | Telegram bot access token
-Geocoderl | Yes | https://locationiq.com/ api 
+Geocoder | Yes | https://locationiq.com/ api 
 MONGO_DB_URI | Yes | coonect mongo db collection 
